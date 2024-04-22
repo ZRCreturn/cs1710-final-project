@@ -7,9 +7,30 @@
 **********************************************************/
 
 -- Two Players Total
+
+sig Minion{
+    mAttack  : one Int,              
+    mHealth  : one Int,             
+    mAction  : one Action,            
+    mState   : one MinionState      
+}
+
+abstract sig Action{}
+one sig ActionCompleted, NotAction extends Action{}
+
+abstract sig MinionState{}
+one sig MinionLive, MinionDead extends MinionState{}
+
+sig GameTime {
+    turn : one Player,
+    tmHealth : func Minion -> Int ,
+    tmAction : func Minion -> Action ,
+    tmState : func Minion -> MinionState
+}
+
 sig Game {
-    firstState: one gameTime,
-    next: pfunc gameTime -> gameTime
+    firstState: one GameTime,
+    next: pfunc GameTime -> GameTime
 }
 sig Player{
     hero: one Hero,
@@ -36,27 +57,10 @@ one sig Nightmare extends Hero{}
         -- and Action (indicating whether the minion have attacked the opponent this round)
         -- minion should not attact opponent over 1 times in one round
 
-sig Minion{
-    mAttack  : one Int,              
-    mHealth  : one Int,             
-    mAction  : one Action,            
-    mState   : one MinionState      
-}
+
 one sig S1, S2, S3, S4, S5, S6, S7, S8, S9, S10 extends Minion{}
 
-abstract sig Action{}
-one sig ActionCompleted, NotAction extends Action{}
 
-abstract sig MinionState{}
-one sig MinionLive, MinionDead extends MinionState{}
-
-
-sig gameTime {
-    turn : one Player,
-    tmHealth : func Minion -> Int ,
-    tmAction : func Minion -> Action ,
-    tmState : func Minion -> MinionState
-}
 
 
 /*********************************************************
@@ -121,75 +125,71 @@ pred InitPlayerStateSAT{
 //     }
 // }
 -- Initialize all Minion state
-pred InitMinionStateSAT{
-    all s : Minion {
-        ((s = S1) implies {
-            s.mAttack = 7
-            s.mHealth = 7
-            s.mAction = NotAction
-            s.mState = MinionLive
-        })
-        ((s = S2) implies {
-            s.mAttack = 2
-            s.mHealth = 3
-            s.mAction = NotAction
-            s.mState = MinionLive
-        })
-        ((s = S3) implies {
-            s.mAttack = 4
-            s.mHealth = 5
-            s.mAction = NotAction
-            s.mState = MinionLive
-        })
-        ((s = S4) implies {
-            s.mAttack = 6
-            s.mHealth = 7
-            s.mAction = NotAction
-            s.mState = MinionLive
-        })
-        ((s = S5) implies {
-            s.mAttack = 5
-            s.mHealth = 5
-            s.mAction = NotAction
-            s.mState = MinionLive
-        })
-        ((s = S6) implies {
-            s.mAttack = 2
-            s.mHealth = 7
-            s.mAction = NotAction
-            s.mState = MinionLive
-        })
-        ((s = S7) implies {
-            s.mAttack = 4
-            s.mHealth = 7
-            s.mAction = NotAction
-            s.mState = MinionLive
-        })
-        ((s = S8) implies {
-            s.mAttack = 7
-            s.mHealth = 6
-            s.mAction = NotAction
-            s.mState = MinionLive
-        })
-        ((s = S9) implies {
-            s.mAttack = 6
-            s.mHealth = 5
-            s.mAction = NotAction
-            s.mState = MinionLive
-        })
-        ((s = S10) implies {
-            s.mAttack = 3
-            s.mHealth = 4
-            s.mAction = NotAction
-            s.mState = MinionLive
-        })
-    }
+pred InitMinionState{
+    S1.mAttack = 7
+    S1.mHealth = 7
+    S1.mAction = NotAction
+    S1.mState = MinionLive
+
+
+    S2.mAttack = 2
+    S2.mHealth = 3
+    S2.mAction = NotAction
+    S2.mState = MinionLive
+
+
+    S3.mAttack = 4
+    S3.mHealth = 5
+    S3.mAction = NotAction
+    S3.mState = MinionLive
+
+
+    S4.mAttack = 6
+    S4.mHealth = 7
+    S4.mAction = NotAction
+    S4.mState = MinionLive
+
+
+    S5.mAttack = 5
+    S5.mHealth = 5
+    S5.mAction = NotAction
+    S5.mState = MinionLive
+
+
+    S6.mAttack = 2
+    S6.mHealth = 7
+    S6.mAction = NotAction
+    S6.mState = MinionLive
+
+
+    S7.mAttack = 4
+    S7.mHealth = 7
+    S7.mAction = NotAction
+    S7.mState = MinionLive
+
+
+    S8.mAttack = 7
+    S8.mHealth = 6
+    S8.mAction = NotAction
+    S8.mState = MinionLive
+
+
+    S9.mAttack = 6
+    S9.mHealth = 5
+    S9.mAction = NotAction
+    S9.mState = MinionLive
+
+
+    S10.mAttack = 3
+    S10.mHealth = 4
+    S10.mAction = NotAction
+    S10.mState = MinionLive
 }
 
 pred InitStateChecksSAT{
     InitPlayerStateSAT
     //InitHeroStateSAT
-    InitMinionStateSAT
+    InitMinionState
 }
 
 
@@ -217,7 +217,7 @@ pred InitStateChecksSAT{
 // -- Trace, run the game  -- since the max teace = 14, we can not set too much health to Minions
 // -- Please pay attention to the ratio of (attack: defence : Health : trace_length)
 
-pred winningAfter [t: gameTime] {
+pred winningAfter [t: GameTime] {
     (all m : Blue.minions | {
         t.tmHealth[m] <= 0
     })
@@ -227,10 +227,10 @@ pred winningAfter [t: gameTime] {
     })
     
 }
-pred doNothing[attacker: Minion, t1, t2 : gameTime]{
+pred doNothing[attacker: Minion, t1, t2 : GameTime]{
     t2.tmAction[attacker] = ActionCompleted
 }
-pred attack[attacker, victim : Minion, t1, t2 : gameTime]{
+pred attack[attacker, victim : Minion, t1, t2 : GameTime]{
     // attacker attack
     t2.tmHealth[victim] = t1.tmHealth[victim] - attacker.mAttack
     // attacker will also Paying the price of an attack -- get hurt by the victim's attack
@@ -245,7 +245,7 @@ pred attack[attacker, victim : Minion, t1, t2 : gameTime]{
 }
 
 
-// sig gameTime {
+// sig GameTime {
 //     turn : one Player
 //     tmHealth : func Minion -> Int 
 //     tmHit : func Minion -> Hit 
@@ -254,12 +254,13 @@ pred attack[attacker, victim : Minion, t1, t2 : gameTime]{
 
 
 
-pred turnChange[t1, t2 : gameTime]{
+pred turnChange[t1, t2 : GameTime]{
     t1.turn = Blue => t2.turn = Red else t2.turn = Blue
+    // todo actionstate change 
 }
 
-pred minionAction[t1, t2 : gameTime]{
-    gameTime.turn = Blue => {
+pred minionAction[t1, t2 : GameTime]{
+    GameTime.turn = Blue => {
         one m1 : Blue.minions | {
             // attack
             (one m2 : Red.minions | {
@@ -342,7 +343,7 @@ pred minionAction[t1, t2 : gameTime]{
         }
     }
 }
-pred step[t1, t2 : gameTime]{
+pred step[t1, t2 : GameTime]{
     (all m : Minion | {t1.tmAction[m] = ActionCompleted}) 
     => (turnChange[t1, t2])
     else (minionAction[t1, t2 ])
@@ -350,13 +351,13 @@ pred step[t1, t2 : gameTime]{
 
 pred traces {
     InitStateChecksSAT
-    no prev : gameTime | Game.next[prev] = Game.firstState -- first state doesn't have a predecessor
-    all t: gameTime |
+    no prev : GameTime | Game.next[prev] = Game.firstState -- first state doesn't have a predecessor
+    all t: GameTime |
         some Game.next[t] implies
             step [t, Game.next[t]]
 }
 
 run{
     traces
-} for exactly 5 Int, 8 gameTime for {next is linear}
+} for exactly 5 Int, 8 GameTime for {next is linear}
 
