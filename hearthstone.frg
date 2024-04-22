@@ -1,4 +1,5 @@
-#lang forge
+#lang forge/temporal
+
 
 /*********************************************************
 *The abstract foundational components of game generation.*
@@ -123,8 +124,8 @@ pred InitPlayerStateSAT{
 pred InitMinionStateSAT{
     all s : Minion {
         ((s = S1) implies {
-            s.mAttack = 8
-            s.mHealth = 8
+            s.mAttack = 7
+            s.mHealth = 7
             s.mAction = NotAction
             s.mState = MinionLive
         })
@@ -153,25 +154,25 @@ pred InitMinionStateSAT{
             s.mState = MinionLive
         })
         ((s = S6) implies {
-            s.mAttack = 1
-            s.mHealth = 10
+            s.mAttack = 2
+            s.mHealth = 7
             s.mAction = NotAction
             s.mState = MinionLive
         })
         ((s = S7) implies {
-            s.mAttack = 2
-            s.mHealth = 8
+            s.mAttack = 4
+            s.mHealth = 7
             s.mAction = NotAction
             s.mState = MinionLive
         })
         ((s = S8) implies {
-            s.mAttack = 12
-            s.mHealth = 12
+            s.mAttack = 7
+            s.mHealth = 6
             s.mAction = NotAction
             s.mState = MinionLive
         })
         ((s = S9) implies {
-            s.mAttack = 9
+            s.mAttack = 6
             s.mHealth = 5
             s.mAction = NotAction
             s.mState = MinionLive
