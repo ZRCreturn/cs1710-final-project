@@ -73,6 +73,7 @@ pred InitPlayerStateSAT{
         (p = Red or p = Blue)
         (p.hero = Nightmare)
         (p.pState = PlayerLive)
+        (#{p.minions} = 5)
     }
     NoSharedMinions
 }
