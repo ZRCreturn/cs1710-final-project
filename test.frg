@@ -151,6 +151,7 @@ pred minion_state_check_B{
 
 }
 
+// test
 
 test expect {
     test1 : {traces implies test_PlayerInitialState} for exactly 2 Player is sat
