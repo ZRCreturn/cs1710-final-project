@@ -230,10 +230,39 @@ pred invalid_hero{
     }
 }
 
+pred minions_attack_status {
+    -- Testing Guarantee basic properties of minions 
+    all m : Minion |{
+        m.mAttack > 0 
+        m.mHealth > 0
+    }
+}
+
+pred minion_action_check {
+    -- Testing Guarantee attack properties of minions 
+    all m : Minion |{
+        some t : GameTime |{
+           t.tmAction[m] != t'.tmAction[m]
+           (m.mAction = ActionCompleted)
+        }
+    }
+}
+
+pred player_info_status{
+    -- Testing Guarantee basic hero properties of minions 
+    all p : Player |{
+       (( p = Red) or (p = Blue)) 
+       p.hero = Nightmare
+    }
+}
 
 
 test suite for traces {
-    // Test expect combination 
+    // Basic init check
+    assert minions_attack_status is necessary for traces
+    assert player_info_status is necessary for traces 
+    assert minion_action_check is sufficient for traces
+
     test expect {
     test1 : {traces implies test_PlayerInitialState} for exactly 2 Player is sat
     test2 : {traces implies noUnexpectMinions}for exactly 2 Player is sat
