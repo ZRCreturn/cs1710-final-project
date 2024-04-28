@@ -28,7 +28,7 @@ sig GameTime {
     tmState : func Minion -> MinionState
 }
 
-sig Game {
+one sig Game {
     firstState: one GameTime,
     next: pfunc GameTime -> GameTime
 }
@@ -58,7 +58,7 @@ one sig Nightmare extends Hero{}
         -- minion should not attact opponent over 1 times in one round
 
 
-one sig S1, S2, S3, S4, S5, S6, S7, S8, S9, S10 extends Minion{}
+one sig S1, S2, S3, S4, S5, S6, S7, S8 extends Minion{}
 
 
 
@@ -78,7 +78,7 @@ pred InitPlayerStateSAT{
         (p = Red or p = Blue)
         (p.hero = Nightmare)
         (p.pState = PlayerLive)
-        (#{p.minions} = 5)
+        (#{p.minions} = 4)
     }
     NoSharedMinions
 }
@@ -131,59 +131,40 @@ pred InitMinionState{
     S1.mAction = NotAction
     S1.mState = MinionLive
 
-
     S2.mAttack = 2
     S2.mHealth = 3
     S2.mAction = NotAction
     S2.mState = MinionLive
-
 
     S3.mAttack = 4
     S3.mHealth = 5
     S3.mAction = NotAction
     S3.mState = MinionLive
 
-
     S4.mAttack = 6
     S4.mHealth = 7
     S4.mAction = NotAction
     S4.mState = MinionLive
-
 
     S5.mAttack = 5
     S5.mHealth = 5
     S5.mAction = NotAction
     S5.mState = MinionLive
 
-
     S6.mAttack = 2
     S6.mHealth = 7
     S6.mAction = NotAction
     S6.mState = MinionLive
-
 
     S7.mAttack = 4
     S7.mHealth = 7
     S7.mAction = NotAction
     S7.mState = MinionLive
 
-
     S8.mAttack = 7
     S8.mHealth = 6
     S8.mAction = NotAction
     S8.mState = MinionLive
-
-
-    S9.mAttack = 6
-    S9.mHealth = 5
-    S9.mAction = NotAction
-    S9.mState = MinionLive
-
-
-    S10.mAttack = 3
-    S10.mHealth = 4
-    S10.mAction = NotAction
-    S10.mState = MinionLive
 }
 
 pred InitStateChecksSAT{
@@ -359,5 +340,5 @@ pred traces {
 
 run{
     traces
-} for exactly 5 Int, 8 GameTime for {next is linear}
+} for exactly 5 Int, 2 GameTime for {next is linear}
 
