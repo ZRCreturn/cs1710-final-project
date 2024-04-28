@@ -60,8 +60,7 @@ pred noUnexpectMinions {
     all m : Minion {
         always{((m = S1) or (m = S2) or (m = S3) or 
         (m = S4) or (m = S5) or (m = S6) or 
-        (m = S7) or (m = S8) or (m = S9) or 
-        (m = S10))}
+        (m = S7) or (m = S8))}
     }
 }
 pred validHero {
