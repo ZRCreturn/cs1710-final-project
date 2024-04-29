@@ -1,4 +1,4 @@
-#lang forge/temporal
+#lang forge
 
 
 /*********************************************************
@@ -58,7 +58,8 @@ one sig Nightmare extends Hero{}
         -- minion should not attact opponent over 1 times in one round
 
 
-one sig S1, S2, S3, S4, S5, S6, S7, S8 extends Minion{}
+// one sig S1, S2, S3, S4, S5, S6, S7, S8 extends Minion{}
+one sig S1, S2, S3, S4 extends Minion{}
 
 
 
@@ -78,7 +79,7 @@ pred InitPlayerStateSAT{
         (p = Red or p = Blue)
         (p.hero = Nightmare)
         (p.pState = PlayerLive)
-        (#{p.minions} = 4)
+        (#{p.minions} = 2)
     }
     NoSharedMinions
 }
@@ -146,31 +147,39 @@ pred InitMinionState{
     S4.mAction = NotAction
     S4.mState = MinionLive
 
-    S5.mAttack = 5
-    S5.mHealth = 5
-    S5.mAction = NotAction
-    S5.mState = MinionLive
+    // S5.mAttack = 5
+    // S5.mHealth = 5
+    // S5.mAction = NotAction
+    // S5.mState = MinionLive
 
-    S6.mAttack = 2
-    S6.mHealth = 7
-    S6.mAction = NotAction
-    S6.mState = MinionLive
+    // S6.mAttack = 2
+    // S6.mHealth = 7
+    // S6.mAction = NotAction
+    // S6.mState = MinionLive
 
-    S7.mAttack = 4
-    S7.mHealth = 7
-    S7.mAction = NotAction
-    S7.mState = MinionLive
+    // S7.mAttack = 4
+    // S7.mHealth = 7
+    // S7.mAction = NotAction
+    // S7.mState = MinionLive
 
-    S8.mAttack = 7
-    S8.mHealth = 6
-    S8.mAction = NotAction
-    S8.mState = MinionLive
+    // S8.mAttack = 7
+    // S8.mHealth = 6
+    // S8.mAction = NotAction
+    // S8.mState = MinionLive
 }
-
+pred InitGameTime{
+    all m : Minion | {
+        Game.firstState.turn = Blue
+        Game.firstState.tmHealth[m] = m.mHealth
+        Game.firstState.tmAction[m] = m.mAction
+        Game.firstState.tmState[m] = m.mState
+    }
+}
 pred InitStateChecksSAT{
     InitPlayerStateSAT
     //InitHeroStateSAT
     InitMinionState
+    InitGameTime
 }
 
 
@@ -253,6 +262,7 @@ pred minionAction[t1, t2 : GameTime]{
                 attack[m1, m2 , t1, t2]
                 
                 // (frame)
+                t1.turn = t2.turn
                 all m3 : (Minion - m1 - m2) | {
                     t1.tmHealth[m3] = t2.tmHealth[m3]
                 }
@@ -274,6 +284,8 @@ pred minionAction[t1, t2 : GameTime]{
             (doNothing[m1, t1, t2])
             and
             // frame 
+            t1.turn = t2.turn
+            and
             (all m6 : Minion | {
                 t1.tmHealth[m6] = t2.tmHealth[m6]
                 t1.tmAction[m6] = t2.tmAction[m6]
@@ -325,7 +337,8 @@ pred minionAction[t1, t2 : GameTime]{
     }
 }
 pred step[t1, t2 : GameTime]{
-    (all m : Minion | {t1.tmAction[m] = ActionCompleted}) 
+
+    #{m : Minion | {t1.tmAction[m] = ActionCompleted}} = 2
     => (turnChange[t1, t2])
     else (minionAction[t1, t2 ])
 }
