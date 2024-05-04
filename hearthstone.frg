@@ -1,4 +1,4 @@
-#lang forge/temporal
+#lang forge
 
 
 /*********************************************************
@@ -9,10 +9,13 @@
 -- Two Players Total
 
 sig Minion{
-    mAttack  : one Int,              
-    mHealth  : one Int,             
-    mAction  : one Action,            
-    mState   : one MinionState      
+    mAttack    : one Int,              
+    mHealth    : one Int,             
+    mAction    : one Action,            
+    mState     : one MinionState,
+    mSheild    : one SheildState,
+    mTaunt     : one Boolean,
+    mLifesteal : one Boolean
 }
 
 abstract sig Action{}
@@ -21,11 +24,18 @@ one sig ActionCompleted, NotAction extends Action{}
 abstract sig MinionState{}
 one sig MinionLive, MinionDead extends MinionState{}
 
+abstract sig SheildState{}
+one sig SheildActive, SheildBroken  extends SheildState{}
+
+abstract sig Boolean{}
+one sig True, False extends Boolean{}
+
 sig GameTime {
     turn : one Player,
     tmHealth : func Minion -> Int ,
     tmAction : func Minion -> Action ,
-    tmState : func Minion -> MinionState
+    tmState : func Minion -> MinionState,
+    tmSheild : func Minion -> SheildState
 }
 
 one sig Game {
@@ -59,6 +69,7 @@ one sig Nightmare extends Hero{}
 
 
 one sig S1, S2, S3, S4, S5, S6, S7, S8 extends Minion{}
+// one sig S1, S2, S3, S4 extends Minion{}
 
 
 
@@ -130,47 +141,72 @@ pred InitMinionState{
     S1.mHealth = 7
     S1.mAction = NotAction
     S1.mState = MinionLive
+    S1.mSheild = SheildActive
+    S1.mTaunt = False
 
     S2.mAttack = 2
     S2.mHealth = 3
     S2.mAction = NotAction
     S2.mState = MinionLive
+    S2.mSheild = SheildActive
+    S2.mTaunt = False
 
     S3.mAttack = 4
     S3.mHealth = 5
     S3.mAction = NotAction
     S3.mState = MinionLive
+    S3.mSheild = SheildBroken
+    S3.mTaunt = True
 
     S4.mAttack = 6
     S4.mHealth = 7
     S4.mAction = NotAction
     S4.mState = MinionLive
+    S4.mSheild = SheildBroken
+    S4.mTaunt = True
 
     S5.mAttack = 5
     S5.mHealth = 5
     S5.mAction = NotAction
     S5.mState = MinionLive
+    S5.mSheild = SheildBroken
+    S5.mTaunt = False
 
     S6.mAttack = 2
     S6.mHealth = 7
     S6.mAction = NotAction
     S6.mState = MinionLive
+    S6.mSheild = SheildBroken
+    S6.mTaunt = False
 
     S7.mAttack = 4
     S7.mHealth = 7
     S7.mAction = NotAction
     S7.mState = MinionLive
+    S7.mSheild = SheildBroken
+    S7.mTaunt = True
 
     S8.mAttack = 7
     S8.mHealth = 6
     S8.mAction = NotAction
     S8.mState = MinionLive
+    S8.mSheild = SheildBroken
+    S8.mTaunt = False
 }
-
+pred InitGameTime{
+    all m : Minion | {
+        Game.firstState.turn = Blue
+        Game.firstState.tmHealth[m] = m.mHealth
+        Game.firstState.tmAction[m] = m.mAction
+        Game.firstState.tmState[m] = m.mState
+        Game.firstState.tmSheild[m] = m.mSheild
+    }
+}
 pred InitStateChecksSAT{
     InitPlayerStateSAT
     //InitHeroStateSAT
     InitMinionState
+    InitGameTime
 }
 
 
@@ -213,10 +249,26 @@ pred doNothing[attacker: Minion, t1, t2 : GameTime]{
 }
 pred attack[attacker, victim : Minion, t1, t2 : GameTime]{
     // attacker attack
-    t2.tmHealth[victim] = t1.tmHealth[victim] - attacker.mAttack
+    ((t1.tmSheild[victim] = SheildActive) =>
+    (t2.tmSheild[victim] = SheildBroken and t2.tmHealth[victim] = t1.tmHealth[victim]) else 
+    (t2.tmHealth[victim] = subtract[t1.tmHealth[victim], attacker.mAttack]))
+
     // attacker will also Paying the price of an attack -- get hurt by the victim's attack
-    t2.tmHealth[attacker] = t1.tmHealth[attacker] - victim.mAttack
+    ((t1.tmSheild[attacker] = SheildActive)=>(
+        t2.tmSheild[attacker] = SheildBroken and t2.tmHealth[attacker] = t1.tmHealth[attacker]
+    ) 
+    else (
+        (attacker.mLifesteal = True) => (
+            t2.tmHealth[attacker] = add [subtract[t1.tmHealth[attacker], victim.mAttack], attacker.mAttack]
+        )
+        else (
+            t2.tmHealth[attacker] = subtract[t1.tmHealth[attacker], victim.mAttack]
+        )
+    ))
     
+    // attacker will gain health if has lifesteal
+    
+
     // state change
     (t2.tmHealth[attacker] <= 0) => (t2.tmState[attacker] = MinionDead) else (t2.tmState[attacker] = MinionLive)
     (t2.tmHealth[victim] <= 0) => (t2.tmState[victim] = MinionDead) else (t2.tmState[victim] = MinionLive)
@@ -225,6 +277,29 @@ pred attack[attacker, victim : Minion, t1, t2 : GameTime]{
     t2.tmAction[attacker] = ActionCompleted
 }
 
+pred attackFrame[attacker, victim : Minion, t1, t2 : GameTime]{
+    // check victim and attacker (guard) 
+    t1.tmState[attacker] = MinionLive
+    t1.tmState[victim] = MinionLive
+    t1.tmAction[attacker] = NotAction
+
+    //attack(action)
+    attack[attacker, victim , t1, t2]
+    
+    // (frame)
+    t1.turn = t2.turn
+    //whenever attack, the sheild must broken
+    t2.tmSheild[attacker] = SheildBroken
+    t2.tmSheild[victim] = SheildBroken
+    all m3 : (Minion - attacker - victim) | {
+        t1.tmHealth[m3] = t2.tmHealth[m3]
+        t1.tmState[m3] = t2.tmState[m3]
+        t1.tmSheild[m3] = t2.tmSheild[m3]
+    }
+    all m4 : (Minion - attacker) | {
+        t1.tmAction[m4] = t2.tmAction[m4]
+    }
+}
 
 // sig GameTime {
 //     turn : one Player
@@ -237,97 +312,96 @@ pred attack[attacker, victim : Minion, t1, t2 : GameTime]{
 
 pred turnChange[t1, t2 : GameTime]{
     t1.turn = Blue => t2.turn = Red else t2.turn = Blue
-    // todo actionstate change 
+    // action_state change 
+    all m : Minion | {
+        t2.tmAction[m] = NotAction
+        // guard for other fields 
+        t2.tmState[m] = t1.tmState[m]
+        t2.tmHealth[m] = t1.tmHealth[m]
+    }
 }
 
 pred minionAction[t1, t2 : GameTime]{
-    GameTime.turn = Blue => {
+    t1.turn = Blue => {
         one m1 : Blue.minions | {
             // attack
+            // must attack minion with taunt first 
+            (#{m : Red.minions | (m.mTaunt = True) and (t1.tmState[m] = MinionLive)} != 0) =>
             (one m2 : Red.minions | {
-                // check victim and attacker (guard) 
-                t1.tmState[m2] = MinionLive
-                t1.tmAction[m1] = NotAction
-
-                //attack(action)
-                attack[m1, m2 , t1, t2]
-                
-                // (frame)
-                all m3 : (Minion - m1 - m2) | {
-                    t1.tmHealth[m3] = t2.tmHealth[m3]
-                }
-                all m4 : (Minion - m1) | {
-                    t1.tmAction[m4] = t2.tmAction[m4]
-                }
-                all m5 : (Minion - m1 - m2) | {
-                    t1.tmState[m5] = t2.tmState[m5]
-                }
+                m2.mTaunt = True
+                attackFrame[m1,m2,t1,t2]
+            }) 
+            else 
+            (one m2 : Red.minions | {
+                attackFrame[m1,m2,t1,t2]
             }) 
 
-            or
-            // or not attack 
+            // or(
+            // // or not attack 
 
-            // check attacker
-            ((t1.tmAction[m1] = NotAction)
-            and
-            // do nothing
-            (doNothing[m1, t1, t2])
-            and
-            // frame 
-            (all m6 : Minion | {
-                t1.tmHealth[m6] = t2.tmHealth[m6]
-                t1.tmAction[m6] = t2.tmAction[m6]
-                t1.tmState[m6] = t2.tmState[m6]
-            })
-            )
+            // // check attacker
+            //     (t1.tmAction[m1] = NotAction)
+            //     and
+            //     // do nothing
+            //     (doNothing[m1, t1, t2])
+            //     and
+            //     // frame 
+            //     (t1.turn = t2.turn)
+            //     and
+            //     (all m6 : Minion | {
+            //         t1.tmHealth[m6] = t2.tmHealth[m6]
+            //         t1.tmState[m6] = t2.tmState[m6]
+            //     })
+            //     and 
+            //     (all m7 : (Minion - m1) | {
+            //         t1.tmAction[m7] = t2.tmAction[m7]
+            //     })
+            // )
         }
     }
     else {
         one m1 : Red.minions | {
             // attack
+            // must attack minion with taunt first 
+            (#{m : Blue.minions | (m.mTaunt = True) and (t1.tmState[m] = MinionLive)} != 0) =>
             (one m2 : Blue.minions | {
-                // check victim and attacker (guard) 
-                t1.tmState[m2] = MinionLive
-                t1.tmAction[m1] = NotAction
-
-                //attack(action)
-                attack[m1, m2 , t1, t2]
-                
-                // (frame)
-                all m3 : (Minion - m1 - m2) | {
-                    t1.tmHealth[m3] = t2.tmHealth[m3]
-                }
-                all m4 : (Minion - m1) | {
-                    t1.tmAction[m4] = t2.tmAction[m4]
-                }
-                all m5 : (Minion - m1 - m2) | {
-                    t1.tmState[m5] = t2.tmState[m5]
-                }
+                m2.mTaunt = True
+                attackFrame[m1,m2,t1,t2]
+            }) 
+            else 
+            (one m2 : Blue.minions | {
+                attackFrame[m1,m2,t1,t2]
             }) 
 
-            or
-            // or not attack 
+            // or(
+            // // or not attack 
 
-            // check attacker
-            ((t1.tmAction[m1] = NotAction)
-            and
-            // do nothing
-            (doNothing[m1, t1, t2])
-            and
-            // frame 
-            (all m6 : Minion | {
-                t1.tmHealth[m6] = t2.tmHealth[m6]
-                t1.tmAction[m6] = t2.tmAction[m6]
-                t1.tmState[m6] = t2.tmState[m6]
-            })
-            )
+            // // check attacker
+            //     (t1.tmAction[m1] = NotAction)
+            //     and
+            //     // do nothing
+            //     (doNothing[m1, t1, t2])
+            //     and
+            //     // frame 
+            //     (t1.turn = t2.turn)
+            //     and
+            //     (all m6 : Minion | {
+            //         t1.tmHealth[m6] = t2.tmHealth[m6]
+            //         t1.tmState[m6] = t2.tmState[m6]
+            //     })
+            //     and 
+            //     (all m7 : (Minion - m1) | {
+            //         t1.tmAction[m7] = t2.tmAction[m7]
+            //     })
+            // )
         }
     }
 }
 pred step[t1, t2 : GameTime]{
-    (all m : Minion | {t1.tmAction[m] = ActionCompleted}) 
+
+    #{m : Minion | {t1.tmAction[m] = ActionCompleted}} = 4
     => (turnChange[t1, t2])
-    else (minionAction[t1, t2 ])
+    else (minionAction[t1, t2])
 }
 
 pred traces {
@@ -340,5 +414,5 @@ pred traces {
 
 run{
     traces
-} for exactly 5 Int, 2 GameTime for {next is linear}
+} for exactly 5 Int, 4  GameTime for {next is linear}
 
