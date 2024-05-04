@@ -12,7 +12,8 @@ sig Minion{
     mAttack  : one Int,              
     mHealth  : one Int,             
     mAction  : one Action,            
-    mState   : one MinionState      
+    mState   : one MinionState,
+    mSheild  : one SheildState     
 }
 
 abstract sig Action{}
@@ -21,11 +22,15 @@ one sig ActionCompleted, NotAction extends Action{}
 abstract sig MinionState{}
 one sig MinionLive, MinionDead extends MinionState{}
 
+abstract sig SheildState{}
+one sig SheildActive, SheildBroken  extends SheildState{}
+
 sig GameTime {
     turn : one Player,
     tmHealth : func Minion -> Int ,
     tmAction : func Minion -> Action ,
-    tmState : func Minion -> MinionState
+    tmState : func Minion -> MinionState,
+    tmSheild : func Minion -> SheildState
 }
 
 one sig Game {
@@ -131,41 +136,49 @@ pred InitMinionState{
     S1.mHealth = 7
     S1.mAction = NotAction
     S1.mState = MinionLive
+    S1.mSheild = SheildActive
 
     S2.mAttack = 2
     S2.mHealth = 3
     S2.mAction = NotAction
     S2.mState = MinionLive
+    S2.mSheild = SheildActive
 
     S3.mAttack = 4
     S3.mHealth = 5
     S3.mAction = NotAction
     S3.mState = MinionLive
+    S3.mSheild = SheildBroken
 
     S4.mAttack = 6
     S4.mHealth = 7
     S4.mAction = NotAction
     S4.mState = MinionLive
+    S4.mSheild = SheildBroken
 
     S5.mAttack = 5
     S5.mHealth = 5
     S5.mAction = NotAction
     S5.mState = MinionLive
+    S5.mSheild = SheildBroken
 
     S6.mAttack = 2
     S6.mHealth = 7
     S6.mAction = NotAction
     S6.mState = MinionLive
+    S6.mSheild = SheildBroken
 
     S7.mAttack = 4
     S7.mHealth = 7
     S7.mAction = NotAction
     S7.mState = MinionLive
+    S7.mSheild = SheildBroken
 
     S8.mAttack = 7
     S8.mHealth = 6
     S8.mAction = NotAction
     S8.mState = MinionLive
+    S8.mSheild = SheildBroken
 }
 pred InitGameTime{
     all m : Minion | {
@@ -173,6 +186,7 @@ pred InitGameTime{
         Game.firstState.tmHealth[m] = m.mHealth
         Game.firstState.tmAction[m] = m.mAction
         Game.firstState.tmState[m] = m.mState
+        Game.firstState.tmSheild[m] = m.mSheild
     }
 }
 pred InitStateChecksSAT{
@@ -222,9 +236,14 @@ pred doNothing[attacker: Minion, t1, t2 : GameTime]{
 }
 pred attack[attacker, victim : Minion, t1, t2 : GameTime]{
     // attacker attack
-    t2.tmHealth[victim] = subtract[t1.tmHealth[victim], attacker.mAttack]
+    ((t1.tmSheild[victim] = SheildActive) =>
+    (t2.tmSheild[victim] = SheildBroken and t2.tmHealth[victim] = t1.tmHealth[victim]) else 
+    (t2.tmHealth[victim] = subtract[t1.tmHealth[victim], attacker.mAttack]))
+
     // attacker will also Paying the price of an attack -- get hurt by the victim's attack
-    t2.tmHealth[attacker] = subtract[t1.tmHealth[attacker], victim.mAttack]
+    ((t1.tmSheild[attacker] = SheildActive) =>
+    (t2.tmSheild[attacker] = SheildBroken and t2.tmHealth[attacker] = t1.tmHealth[attacker]) else 
+    (t2.tmHealth[attacker] = subtract[t1.tmHealth[attacker], victim.mAttack]))
     
     // state change
     (t2.tmHealth[attacker] <= 0) => (t2.tmState[attacker] = MinionDead) else (t2.tmState[attacker] = MinionLive)
@@ -270,14 +289,16 @@ pred minionAction[t1, t2 : GameTime]{
                 
                 // (frame)
                 t1.turn = t2.turn
+                //whenever attack, the sheild must broken
+                t2.tmSheild[m1] = SheildBroken
+                t2.tmSheild[m2] = SheildBroken
                 all m3 : (Minion - m1 - m2) | {
                     t1.tmHealth[m3] = t2.tmHealth[m3]
+                    t1.tmState[m3] = t2.tmState[m3]
+                    t1.tmSheild[m3] = t2.tmSheild[m3]
                 }
                 all m4 : (Minion - m1) | {
                     t1.tmAction[m4] = t2.tmAction[m4]
-                }
-                all m5 : (Minion - m1 - m2) | {
-                    t1.tmState[m5] = t2.tmState[m5]
                 }
             }) 
 
@@ -318,14 +339,15 @@ pred minionAction[t1, t2 : GameTime]{
                 
                 // (frame)
                 t1.turn = t2.turn
+                t2.tmSheild[m1] = SheildBroken
+                t2.tmSheild[m2] = SheildBroken
                 all m3 : (Minion - m1 - m2) | {
                     t1.tmHealth[m3] = t2.tmHealth[m3]
+                    t1.tmState[m3] = t2.tmState[m3]
+                    t1.tmSheild[m3] = t2.tmSheild[m3]
                 }
                 all m4 : (Minion - m1) | {
                     t1.tmAction[m4] = t2.tmAction[m4]
-                }
-                all m5 : (Minion - m1 - m2) | {
-                    t1.tmState[m5] = t2.tmState[m5]
                 }
             }) 
 
@@ -370,5 +392,5 @@ pred traces {
 
 run{
     traces
-} for exactly 5 Int, 5 GameTime for {next is linear}
+} for exactly 5 Int, 12          GameTime for {next is linear}
 
