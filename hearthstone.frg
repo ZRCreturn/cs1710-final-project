@@ -47,7 +47,7 @@ sig Player{
     minions: set Minion,
     pState: one PlayerState
 }
--- We assume the Red player always go first 
+-- We assume the Blue player always go first 
 one sig Red, Blue extends Player{}
 
 -- Player State Dead/Live
@@ -61,7 +61,7 @@ sig Hero{
 }
 // one sig Nightmare, Immortal, Paladin, Lava, Panda, Drunkard extends Hero{}
 one sig Nightmare extends Hero{}
--- A total of 10 minions for the player to choose from
+-- A total of 8 minions for the player to choose from
     -- Explanation：
         -- Each minion has attack damage, defense anti-damage, health status, 
         -- and Action (indicating whether the minion have attacked the opponent this round)
@@ -94,47 +94,6 @@ pred InitPlayerStateSAT{
     NoSharedMinions
 }
 
--- Initialize Heros state, Set unique values to each hero's attack, defense, and health
-// pred InitHeroStateSAT{
-//     all h : Hero{
-//         -- Nightmare
-//         (h = Nightmare implies {
-//             h.attack = 
-//             h.defense = 
-//             h.health = 
-//         })
-//         -- Immortal
-//         (h = Immortal implies {
-//             h.attack = 
-//             h.defense = 
-//             h.health = 
-//         })
-//         -- Paladin
-//         (h = Paladin implies {
-//             h.attack = 
-//             h.defense = 
-//             h.health = 
-//         })
-//         -- Lava
-//         (h = Lava implies {
-//             h.attack = 
-//             h.defense = 
-//             h.health = 
-//         })
-//         -- Panda
-//         (h = Panda implies {
-//             h.attack = 
-//             h.defense = 
-//             h.health = 
-//         })
-//         -- Drunkard
-//         (h = Drunkard implies {
-//             h.attack = 
-//             h.defense = 
-//             h.health = 
-//         })
-//     }
-// }
 -- Initialize all Minion state
 pred InitMinionState{
     S1.mAttack = 7
@@ -204,32 +163,9 @@ pred InitGameTime{
 }
 pred InitStateChecksSAT{
     InitPlayerStateSAT
-    //InitHeroStateSAT
     InitMinionState
     InitGameTime
 }
-
-
-// -- In this component, We test the safety of actions.
-//     -- In other word, Am I able to take action safely? Action Guard
-// pred stayStill[p:Player]{} -- no changes if it is my attack round
-// pred playerAttackEnable[p : Player]{}
-// pred minionAttackEnable[p : Player, s: Minion]{}
-
-
-// -- In this component, we test for the correctness of operations (hit or defen)
-// pred attackCorrectness[]{}
-// pred defenseCorrectness[]{}
-// pred healthCalculationCorrectness[]{}
-// pred CorrectnessLiveOrDeadState[]{}
-
-
-
-// -- procedures 
-
-// pred GamingProcedure{
-//     -- Core rule of running game
-// }
 
 // -- Trace, run the game  -- since the max teace = 14, we can not set too much health to Minions
 // -- Please pay attention to the ratio of (attack: defence : Health : trace_length)
@@ -301,15 +237,6 @@ pred attackFrame[attacker, victim : Minion, t1, t2 : GameTime]{
     }
 }
 
-// sig GameTime {
-//     turn : one Player
-//     tmHealth : func Minion -> Int 
-//     tmHit : func Minion -> Hit 
-//     tmState : func Minion -> MinionState
-// }
-
-
-
 pred turnChange[t1, t2 : GameTime]{
     t1.turn = Blue => t2.turn = Red else t2.turn = Blue
     // action_state change 
@@ -335,28 +262,6 @@ pred minionAction[t1, t2 : GameTime]{
             (one m2 : Red.minions | {
                 attackFrame[m1,m2,t1,t2]
             }) 
-
-            // or(
-            // // or not attack 
-
-            // // check attacker
-            //     (t1.tmAction[m1] = NotAction)
-            //     and
-            //     // do nothing
-            //     (doNothing[m1, t1, t2])
-            //     and
-            //     // frame 
-            //     (t1.turn = t2.turn)
-            //     and
-            //     (all m6 : Minion | {
-            //         t1.tmHealth[m6] = t2.tmHealth[m6]
-            //         t1.tmState[m6] = t2.tmState[m6]
-            //     })
-            //     and 
-            //     (all m7 : (Minion - m1) | {
-            //         t1.tmAction[m7] = t2.tmAction[m7]
-            //     })
-            // )
         }
     }
     else {
@@ -372,28 +277,6 @@ pred minionAction[t1, t2 : GameTime]{
             (one m2 : Blue.minions | {
                 attackFrame[m1,m2,t1,t2]
             }) 
-
-            // or(
-            // // or not attack 
-
-            // // check attacker
-            //     (t1.tmAction[m1] = NotAction)
-            //     and
-            //     // do nothing
-            //     (doNothing[m1, t1, t2])
-            //     and
-            //     // frame 
-            //     (t1.turn = t2.turn)
-            //     and
-            //     (all m6 : Minion | {
-            //         t1.tmHealth[m6] = t2.tmHealth[m6]
-            //         t1.tmState[m6] = t2.tmState[m6]
-            //     })
-            //     and 
-            //     (all m7 : (Minion - m1) | {
-            //         t1.tmAction[m7] = t2.tmAction[m7]
-            //     })
-            // )
         }
     }
 }
