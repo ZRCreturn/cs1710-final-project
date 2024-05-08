@@ -54,9 +54,9 @@ The testing strategy for the project encompasses four components: Sig Properties
 ### Did your goals change at all from your proposal?
     No, According to our initial goal setting, we have accomplished not only the simulation of the game but also the modeling tests of elements that could potentially influence the game's balance.
 
-# Did you realize anything you planned was unrealistic, or that anything you thought was unrealistic was doable?
+### Did you realize anything you planned was unrealistic, or that anything you thought was unrealistic was doable?
 
-# How should we understand an instance of your model and what your visualization shows (whether custom or default)?
+### How should we understand an instance of your model and what your visualization shows (whether custom or default)?
 
-# Collaborators
+### Collaborators
     We don't have any external collaborators outside of the team.
