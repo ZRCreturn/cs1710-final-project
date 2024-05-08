@@ -96,7 +96,7 @@ pred noCircleTest{
     --ALL PLAYER WELL-FORMED 
 pred wellformed{
     -- Check all objects initial status
-    one t : GameTime |{
+    some t : GameTime |{
         (Game.firstState = t)
         wellformed_minions
         wellformed_hero
