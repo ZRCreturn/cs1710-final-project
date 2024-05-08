@@ -1,6 +1,3 @@
-# ReadMe Documentation 
-
-
 # Project Objective
 
 As all three of us are fans of the Hearthstone game, we became interested in trying to simulate a simplified version of the game model after learning about Forge. Simulating our favorite game is in itself a rewarding achievement. Furthermore, we hope to use this model to simulate some envisioned game scenarios, and by analyzing the outcomes (different game results due to different execution strategies), we aim to discover some general strategies that can be effectively applied in actual game matches.
