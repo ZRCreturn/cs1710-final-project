@@ -4,7 +4,6 @@ As all three of us are fans of the Hearthstone game, we became interested in try
 
 However, our aspirations don't end there. Our model also aims to tackle the challenges of game balance and diversity in game modes.At the first, one of the common issue that all game need to slove is the game balance. Balance is a broad term within gaming. Specifically, the equilibrium of a game determines not only its lifespan but also its reputation and profitability. For instance, what initial state (such as health points, attack points, etc.) should we assign to each new minion in the next version of the game? When a new hero is introduced in the upcoming version of the game, what abilities/buffs should be given to the new hero without disrupting the game's balance? When it comes to profitability, could we introduce a new skin that enhances profitability without disrupting game balance? For example, could a minion using the new skin gain an additional attack point? These fundamental issues are what we can address with Slover. Therefore, Our project not only completed the simulation game goal we listed above, but also accomplished the Target goal -- Conduct balance testing on the game and furnish data to substantiate future expansions and additions to the game.
 
-
 # Model Design and Visualization:
 
 
@@ -46,13 +45,13 @@ The testing strategy for the project encompasses four components: Sig Properties
 
 
 
-# What tradeoffs did you make in choosing your representation? 
+###  What tradeoffs did you make in choosing your representation? 
 
-# What else did you try that didn’t work as well?
+### What else did you try that didn’t work as well?
 
-# What assumptions did you make about scope? What are the limits of your model?
+### What assumptions did you make about scope? What are the limits of your model?
 
-# Did your goals change at all from your proposal?
+### Did your goals change at all from your proposal?
     No, According to our initial goal setting, we have accomplished not only the simulation of the game but also the modeling tests of elements that could potentially influence the game's balance.
 
 # Did you realize anything you planned was unrealistic, or that anything you thought was unrealistic was doable?
