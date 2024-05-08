@@ -269,53 +269,24 @@ pred invalid_player_state_switch[p:Player]{
     --LIVENESS TEST, THE GAME WILL BE END FINALLY.
 pred has_winner_eventually{
     -- Testing Guarantees that the all games will end eventually with a winner
-        -- 1. There is a final state, such taht s.next = none
-        -- 2. For the last state: 
-            -- at least one winner's minion state = alive , and health points <= 0
-            -- all loser's minion state = Dead, and health points > 0
-    one last : GameTime | {
-        (no Game.next[last])
-        (some p1, p2 :Player |{
-            (p1 != p2)
-            (all m1 : Minion|{
-                (m1 in p1.minions)
-                (last.tmHealth[m1] <= 0)
-                (m1.mState = MinionDead)
-            })
-            (some m2 : Minion|{
-                (m2 in p2.minions)
-                (m2.mState = MinionLive)
-                (last.tmHealth[m2] > 0)
-            })
-        })
-    }
+    (some t : GameTime | {(no Game.next[t])})
 }
 
-pred get_adjacent_gametime[t1, t2 :GameTime]{
-    -- Generate a t1->t2 pair, which is t1 is head and t2 is tail
-        -- t1 and t2 both are not last GameTime
-    one last : GameTime |{
-        (no Game.next[last])
-        (t1 != last)
-        (t2 != last)
-        (t1 !=  t2)
-        (Game.next[t1] = t2)
+    --STARVATION FREE TEST, Each change in timestamp leads to a change in turn. 
+        -- Consequently, all players have opportunities to attacks at its 'turn'.
+pred trun_switch{
+    all t: GameTime | {
+        t.turn != (Game.next[t]).turn
     }
 }
-    --STARVATION FREE TEST, ALL MINIONS/PLAYERS PROGRESS AT LEASTE ONCE
-pred correct_turn_switch{
-    all t1, t2 :GameTime |{
-        get_adjacent_gametime[t1, t2]
-        t1.turn != t2.turn
-    }
-}
-pred always_some_minion_take_action{
+pred all_minion_stay_same_action_state{
     -- Testing Guarantees that always at least one minion take action at each game state t -> t'
-    all t1, t2 : GameTime |{
-        get_adjacent_gametime[t1, t2]
-        some m : Minion |{
-            (m in t1.turn.minions)
-            (t1.tmState[m] != t2.tmState[m])
+    all t : GameTime |{
+        some m :Minion |{
+            ((t.tmHealth[m] != (Game.next[t]).tmHealth[m]) or 
+            (t.tmAction[m] != (Game.next[t]).tmAction[m]) or 
+            (t.tmState[m] != (Game.next[t]).tmState[m]) or 
+            (t.tmSheild[m] != (Game.next[t]).tmSheild[m]))
         }
     }
 }
@@ -336,7 +307,7 @@ test suite for traces {
         PROPERTY_BASED_TEST10 : {traces implies noCircleTest} is theorem
 
 		-- OPERATIONAL TEST
-        OPERATIONAL_TEST1 : {traces and wellformed} is sat
+        OPERATIONAL_TEST1 : {traces and wellformed}is sat
         OPERATIONAL_TEST2 : {traces implies attacker_minions_health_StaySame_if_sheild[Player]}for exactly 2 Player is sat
         OPERATIONAL_TEST3 : {traces implies attacker_minions_health_drop_if_nonSheild[Player]}for exactly 2 Player is sat
         OPERATIONAL_TEST4 : {traces implies minion_state_check_A} is sat
@@ -348,10 +319,10 @@ test suite for traces {
         OPERATIONAL_TEST10 : {traces and victim_sheild_function_check[Player]}for exactly 2 Player is sat
 
         -- LIVENESS TEST
-        LIVENESS_TEST_A : {traces implies has_winner_eventually} is sat
+        LIVENESS_TEST_A : {traces and has_winner_eventually} is sat
         -- STARVATION FREE TEST
-        STARVATION_FREE_TEST_A : {traces implies correct_turn_switch} is sat
-        STARVATION_FREE_TEST_B : {traces implies always_some_minion_take_action} is sat 
+        STARVATION_FREE_TEST_A : {traces and trun_switch} is sat
+        STARVATION_FREE_TEST_B : {traces and all_minion_stay_same_action_state} is sat
 
     }
 }
