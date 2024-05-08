@@ -33,7 +33,7 @@ Predicates represents the operational mechanism and boundary conditions of the g
     /* Need to adding an marco-explanations about what pred done and how it works */
 
 # Testing:
-The testing strategy for the project encompasses four components: a, b, c, and d. I will outline the purpose and function of each of these components：
+The testing strategy for the project encompasses four components: Sig Properties Testing, Game Procedure Testing, LIVENESS TEST, and STARVATION FREE TEST. I will outline the purpose and function of each of these components：
 
     -- Sig Properties Testing :
         Establish the boundaries of the foundation. Ensure that each attribute in every sig remains consistently within the designated boundary, unaffected by changes in the game state. For example: Regarding the time-stamp sig "GameTime," we aim to prevent any timestamps from occurring prior to the initial time (T0). Furthermore, we seek to ensure that "T-end + 1" timestamps do not occur after the final state, T-end. 
