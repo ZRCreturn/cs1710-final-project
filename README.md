@@ -27,7 +27,7 @@ Hero : Grant additional bonuses (such as increased life or attack) to each minio
 Predicates represents the operational mechanism and boundary conditions of the game. In essence, 'Predicates' represents the framework of rules governing the game's operations.
     Predicates: 
 
-    /* Need to adding an marco-explanations about what pred done and how it works */
+    /* TODO : Need to adding an marco-explanations about what pred done and how it works */
 
 # Testing:
 The testing strategy for the project encompasses four components: Sig Properties Testing, Game Procedure Testing, LIVENESS TEST, and STARVATION FREE TEST. I will outline the purpose and function of each of these components：
