@@ -10,17 +10,18 @@ However, our aspirations don't end there. Our model also aims to tackle the chal
 # Signatures and Predicates:
 
 Sig represents the fundamental game component and the essential state components required to convey the game/time/progress status in the game Hearthstone.
-    sig: 
-        Minion :  Soldiers, commonly referred to as cards, are the primary units in the game. Each minion corresponds to a card and possesses its own set of attributes such as health, attack power, skills, and so forth.
-        MinionState : Representing the state of Minion (dead, alive)
-        SheildState : Certain minions are endowed with blocking skills.
-        Action : Every turn, minions execute an action state.
-        Boolean : True/False State
-        Game : Time-stamp linkedList for tracking turn-based Game status
-        GameTime : Time-stamp with dictionaries(eg. minions states at some time-stamp)
-        Player : Red vs Blue
-        PlayerState : Player's macro status (wins and losses, minions, heroes, etc.)
-        Hero : Grant additional bonuses (such as increased life or attack) to each minion in the own camp.
+Minion :  Soldiers, commonly referred to as cards, are the primary units in the game. 
+          Each minion corresponds to a card and possesses its own set of attributes such as health, 
+          attack power, skills, and so forth.
+MinionState : Representing the state of Minion (dead, alive)
+SheildState : Certain minions are endowed with blocking skills.
+Action : Every turn, minions execute an action state.
+Boolean : True/False State
+Game : Time-stamp linkedList for tracking turn-based Game status
+GameTime : Time-stamp with dictionaries(eg. minions states at some time-stamp)
+Player : Red vs Blue
+PlayerState : Player's macro status (wins and losses, minions, heroes, etc.)
+Hero : Grant additional bonuses (such as increased life or attack) to each minion in the own camp.
 
 
 Predicates represents the operational mechanism and boundary conditions of the game. In essence, 'Predicates' represents the framework of rules governing the game's operations.
