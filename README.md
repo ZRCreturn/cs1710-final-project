@@ -1,11 +1,24 @@
 # Project Objective
 
-As all three of us are fans of the Hearthstone game, we became interested in trying to simulate a simplified version of the game model after learning about Forge. Simulating our favorite game is in itself a rewarding achievement. Furthermore, we hope to use this model to simulate some envisioned game scenarios, and by analyzing the outcomes (different game results due to different execution strategies), we aim to discover some general strategies that can be effectively applied in actual game matches.
+Since all three of us are fans of the game Hearthstone, we're interested in simulating a simplified version after learning about Forge. Simulating our favorite game is already rewarding in itself, but we also want to use this model to explore game scenarios. By analyzing the outcomes of different strategies, we hope to uncover effective general tactics that players can apply in real matches. For beginners, our model will provide valuable insights into basic strategies that help secure victories. For seasoned players, the data-driven results will offer an advantage over relying solely on intuition.
 
-However, our aspirations don't end there. Our model also aims to tackle the challenges of game balance and diversity in game modes.At the first, one of the common issue that all game need to slove is the game balance. Balance is a broad term within gaming. Specifically, the equilibrium of a game determines not only its lifespan but also its reputation and profitability. For instance, what initial state (such as health points, attack points, etc.) should we assign to each new minion in the next version of the game? When a new hero is introduced in the upcoming version of the game, what abilities/buffs should be given to the new hero without disrupting the game's balance? When it comes to profitability, could we introduce a new skin that enhances profitability without disrupting game balance? For example, could a minion using the new skin gain an additional attack point? These fundamental issues are what we can address with Slover. Therefore, Our project not only completed the simulation game goal we listed above, but also accomplished the Target goal -- Conduct balance testing on the game and furnish data to substantiate future expansions and additions to the game.
+However, our aspirations don't end there. Our model also aims to tackle the challenges of game balance and diversity in game modes.At the first, one of the common issue that all game need to slove is the game balance. Balance is a broad term within gaming. Specifically, the equilibrium of a game determines not only its lifespan but also its reputation and profitability. For instance, what initial state (such as health, attack etc.) should we assign to each new minion in the next version of the game? When a new hero is introduced in the upcoming version of the game, what abilities/buffs should be given to the new hero without disrupting the game's balance? When it comes to profitability, could we introduce a new skin that enhances profitability without disrupting game balance? These fundamental issues are what we can address with Slover. To be more specific, we can test all these things in the pre-project phase using solvers, rather than actually developing these new features and test in the internal or beta version. By doing this, game company can save a lot of development resources. Therefore, Our project not only completed the simulation game goal we listed above, but also has much practical significance
 
 # Model Design and Visualization:
+The whole game is a time sequence running through the beginning and the end of the game, and we constrain the connection relationship between the minimum time unit **GameTime** of each action through the predicate of ``traces``, and record the whole game trajectory.  Specifically, we use the ``step`` predicate to connect each pair of **GameTimes**. Within each step, two key types of actions can occur:
 
+1. **Turn change**: Switches control to the opponent's turn.
+2. **MinionAction**: Determines a minion's action, whether attacking or choosing to do nothing.
+
+
+
+This approach allows us to accurately record and analyze the entire sequence of events throughout the game.
+
+Our model simplifies the game by no longer focusing on the heroes and putting all the attention on minion interactions. This is because in a real game, the core means of winning is to gain an advantage over your minions. Once the follower has the lower hand, the hero can only be drained to death even if he has more blood.
+
+Condition to win: 
+1. When all of one side's followers are killed, the other side is declared the winner. 
+2. above is constranined by the predicate ``winningAfter``
 
 # Signatures and Predicates:
 
