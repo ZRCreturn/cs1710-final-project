@@ -20,27 +20,55 @@ Condition to win:
 1. When all of one side's followers are killed, the other side is declared the winner. 
 2. above is constranined by the predicate ``winningAfter``
 
-# Signatures and Predicates:
+# Signatures and Predicates
 
-Sig represents the fundamental game component and the essential state components required to convey the game/time/progress status in the game Hearthstone.
-Minion :  Soldiers, commonly referred to as cards, are the primary units in the game. 
-          Each minion corresponds to a card and possesses its own set of attributes such as health, 
-          attack power, skills, and so forth.
-MinionState : Representing the state of Minion (dead, alive)
-SheildState : Certain minions are endowed with blocking skills.
-Action : Every turn, minions execute an action state.
-Boolean : True/False State
-Game : Time-stamp linkedList for tracking turn-based Game status
-GameTime : Time-stamp with dictionaries(eg. minions states at some time-stamp)
-Player : Red vs Blue
-PlayerState : Player's macro status (wins and losses, minions, heroes, etc.)
-Hero : Grant additional bonuses (such as increased life or attack) to each minion in the own camp.
+### Signatures:
+
+Sig Represents the fundamental game component and the essential state components required to convey the game/time/progress status in Hearthstone.
+
+- **Minion**: Soldiers, commonly known as cards, are the primary units in the game. Each minion corresponds to a card and has its own attributes, such as health, attack power, and skills.
+
+- **MinionState**: Represents the state of a minion (dead or alive).
+
+- **ShieldState**: Indicates whether a minion has a shield.
+
+- **Action**: Defines the action state executed by minions in every turn.
+
+- **Boolean**: Represents a True/False state.
+
+- **Game**: A linked list of timestamps used to track the turn-based game status.
+
+- **GameTime**: A timestamp that includes dictionaries (e.g., the states of minions at a given timestamp).
+
+- **Player**: Represents the two competing players, Red and Blue.
+
+- **PlayerState**: Denotes the player's overall status (wins and losses, minions, heroes, etc.).
+
+### Predicates:
+
+Predicates represent the operational mechanisms and boundary conditions of the game. They serve as the framework of rules that govern gameplay. 
+
+- **Init series predicates:** they are used to initialize the game, including ``InitPlayerStateSAT``, ``InitHeroStateSAT``, ``InitMinionState``, ``InitGameTime``. they are used int a general pred ``InitStateChecksSAT``
+
+- **winningAfter:** this predicate defines the winning condition.
+
+- **trace:** predicate recoding the game trace, also it defines the chain structure of GameTime.
+
+- **step:** Indicates each move of the game, similar to each chess piece making a move in chess.
+
+- **attackFrame:** helper predicate defines the framework of an attack move.
+
+- **attack:** actual attack of a minion. Both it and attackFrame pred takes 4 peremeters. the first two indicate the attacker and the victim, they are all Minions. And the last two are Gametimes, they represent the game time before and after the execution of the action respectively.
+
+- **turnChange:** it represents turn changes to opponent, in this pred, two things are done. First is to change the turn feild to another player. Second is to reset all of the minions' tmAction in the next GameTime to NotAction.
+
+- **doNothing:** Another action of a minion.
+
+- **minionAction:** indicates a minon's action. All action pred's are written in strict compliance with the Guard->action->frame principle.
 
 
-Predicates represents the operational mechanism and boundary conditions of the game. In essence, 'Predicates' represents the framework of rules governing the game's operations.
-    Predicates: 
 
-    /* TODO : Need to adding an marco-explanations about what pred done and how it works */
+
 
 # Testing:
 The testing strategy for the project encompasses four components: Sig Properties Testing, Game Procedure Testing, LIVENESS TEST, and STARVATION FREE TEST. I will outline the purpose and function of each of these components：
@@ -60,19 +88,19 @@ The testing strategy for the project encompasses four components: Sig Properties
 
 
 ###  What tradeoffs did you make in choosing your representation? 
+As mentioned above, we made the trade-off of not fully modeling the entire game, but instead filtering out the most central part of the game, the minions exchange, for modeling. This is partly because it makes our model more intuitive and easier to clearly explore generic game strategies. On the other hand, it is because forges do have performance limitations, and with our current model, if the GameTime is too large, it already causes the model to run very slowly, and if we add in the hero factor, it will only get worse.
 
-### What else did you try that didn’t work as well?
 
 ### What assumptions did you make about scope? What are the limits of your model?
+We limit the number of minions to a maximum of eight, and also set a certain limit on game time, eg. limiting it to 15, which means the game lasts 3 to 4 turns. All of this is a limitation on the size of the game, as the performance of the forges is not up to the demands of a larger scale, and we don't have unique skills for each card, etc., as this is not very relevant to the core gameplay, and has significant design complexity.
 
 ### Did your goals change at all from your proposal?
 
 No, According to our initial goal setting, we have accomplished not only the simulation of the 
 game but also the modeling tests of elements that could potentially influence the game's balance.
 
-### Did you realize anything you planned was unrealistic, or that anything you thought was unrealistic was doable?
-
 ### How should we understand an instance of your model and what your visualization shows (whether custom or default)?
+// TODO by futao
 
 ### Collaborators
 We don't have any external collaborators outside of the team.
