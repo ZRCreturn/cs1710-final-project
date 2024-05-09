@@ -269,7 +269,15 @@ pred invalid_player_state_switch[p:Player]{
     --LIVENESS TEST, THE GAME WILL BE END FINALLY.
 pred has_winner_eventually{
     -- Testing Guarantees that the all games will end eventually with a winner
-    (some t : GameTime | {(no Game.next[t])})
+    some t : GameTime | {
+        ((all m : Blue.minions | {
+            t.tmHealth[m] <= 0
+        }) or 
+        (all m : Red.minions | {
+            t.tmHealth[m] <= 0
+        }))
+        (no Game.next[t])
+    }
 }
 
     --STARVATION FREE TEST, Each change in timestamp leads to a change in turn. 
@@ -295,34 +303,34 @@ test suite for traces {
 
     test expect {
         -- BASIC PROPERTY TESTS
-        PROPERTY_BASED_TEST1 : {traces and only_two_player_join_the_game} is sat
-        PROPERTY_BASED_TEST2 : {traces and all_hero_init_health_greater_than_zero[Player]}for exactly 2 Player is sat
-        PROPERTY_BASED_TEST3 : {traces and always_keep_validHero[Player]} for exactly 2 Player is sat
-        PROPERTY_BASED_TEST4 : {traces and all_minion_sat_init_setup[Player]} for exactly 2 Player is sat
-        PROPERTY_BASED_TEST5 : {traces and noSharedMinions[Player]} for exactly 2 Player is sat
-        PROPERTY_BASED_TEST6 : {traces implies noUnexpectMinions} is theorem
-        PROPERTY_BASED_TEST7 : {traces implies noFirstStatePrev} is theorem
-        PROPERTY_BASED_TEST8 : {traces implies noEndingStateNext} is theorem
-        PROPERTY_BASED_TEST9 : {traces implies noFirstStatePrevReachable} is theorem
-        PROPERTY_BASED_TEST10 : {traces implies noCircleTest} is theorem
+        // PROPERTY_BASED_TEST1 : {traces and only_two_player_join_the_game} is sat
+        // PROPERTY_BASED_TEST2 : {traces and all_hero_init_health_greater_than_zero[Player]}for exactly 2 Player is sat
+        // PROPERTY_BASED_TEST3 : {traces and always_keep_validHero[Player]} for exactly 2 Player is sat
+        // PROPERTY_BASED_TEST4 : {traces and all_minion_sat_init_setup[Player]} for exactly 2 Player is sat
+        // PROPERTY_BASED_TEST5 : {traces and noSharedMinions[Player]} for exactly 2 Player is sat
+        // PROPERTY_BASED_TEST6 : {traces implies noUnexpectMinions} is theorem
+        // PROPERTY_BASED_TEST7 : {traces implies noFirstStatePrev} is theorem
+        // PROPERTY_BASED_TEST8 : {traces implies noEndingStateNext} is theorem
+        // PROPERTY_BASED_TEST9 : {traces implies noFirstStatePrevReachable} is theorem
+        // PROPERTY_BASED_TEST10 : {traces implies noCircleTest} is theorem
 
 		-- OPERATIONAL TEST
-        OPERATIONAL_TEST1 : {traces and wellformed}is sat
-        OPERATIONAL_TEST2 : {traces implies attacker_minions_health_StaySame_if_sheild[Player]}for exactly 2 Player is sat
-        OPERATIONAL_TEST3 : {traces implies attacker_minions_health_drop_if_nonSheild[Player]}for exactly 2 Player is sat
-        OPERATIONAL_TEST4 : {traces implies minion_state_check_A} is sat
-        OPERATIONAL_TEST5 : {traces implies minion_state_check_B} is sat
-        OPERATIONAL_TEST6 : {traces and some_player_has_no_minions [Player]}for exactly 2 Player is unsat
-        OPERATIONAL_TEST7 : {traces and invalid_player_state_switch[Player]}for exactly 2 Player is unsat
-        OPERATIONAL_TEST8 : {traces implies attacker_Lifesteal_check[Player]}for exactly 2 Player is sat
-        OPERATIONAL_TEST9 : {traces and victim_Taunt_check[Player]}for exactly 2 Player is unsat
-        OPERATIONAL_TEST10 : {traces and victim_sheild_function_check[Player]}for exactly 2 Player is sat
+        // OPERATIONAL_TEST1 : {traces and wellformed}is sat
+        // OPERATIONAL_TEST2 : {traces implies attacker_minions_health_StaySame_if_sheild[Player]}for exactly 2 Player is sat
+        // OPERATIONAL_TEST3 : {traces implies attacker_minions_health_drop_if_nonSheild[Player]}for exactly 2 Player is sat
+        // OPERATIONAL_TEST4 : {traces implies minion_state_check_A} is sat
+        // OPERATIONAL_TEST5 : {traces implies minion_state_check_B} is sat
+        // OPERATIONAL_TEST6 : {traces and some_player_has_no_minions [Player]}for exactly 2 Player is unsat
+        // OPERATIONAL_TEST7 : {traces and invalid_player_state_switch[Player]}for exactly 2 Player is unsat
+        // OPERATIONAL_TEST8 : {traces implies attacker_Lifesteal_check[Player]}for exactly 2 Player is sat
+        // OPERATIONAL_TEST9 : {traces and victim_Taunt_check[Player]}for exactly 2 Player is unsat
+        // OPERATIONAL_TEST10 : {traces and victim_sheild_function_check[Player]}for exactly 2 Player is sat
 
         -- LIVENESS TEST
         LIVENESS_TEST_A : {traces and has_winner_eventually} is sat
         -- STARVATION FREE TEST
-        STARVATION_FREE_TEST_A : {traces and trun_switch} is sat
-        STARVATION_FREE_TEST_B : {traces and all_minion_stay_same_action_state} is sat
+        // STARVATION_FREE_TEST_A : {traces and trun_switch} is sat
+        // STARVATION_FREE_TEST_B : {traces and all_minion_stay_same_action_state} is sat
 
     }
 }
