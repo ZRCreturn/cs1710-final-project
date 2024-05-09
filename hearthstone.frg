@@ -32,6 +32,7 @@ one sig True, False extends Boolean{}
 
 sig GameTime {
     turn : one Player,
+    end  : one Boolean,
     tmHealth : func Minion -> Int ,
     tmAction : func Minion -> Action ,
     tmState : func Minion -> MinionState,
@@ -287,6 +288,7 @@ pred attackFrame[attacker, victim : Minion, t1, t2 : GameTime]{
     attack[attacker, victim , t1, t2]
     
     // (frame)
+    
     t1.turn = t2.turn
     //whenever attack, the sheild must broken
     t2.tmSheild[attacker] = SheildBroken
@@ -398,10 +400,24 @@ pred minionAction[t1, t2 : GameTime]{
     }
 }
 pred step[t1, t2 : GameTime]{
+    winningAfter[t1] => 
+    (all m : Minion | {
+        t1.tmAction[m] = t2.tmAction[m]
+        t1.tmHealth[m] = t2.tmHealth[m]
+        t1.tmState[m] = t2.tmState[m]
+        t1.tmSheild[m] = t2.tmSheild[m]
+        t1.turn = t2.turn
+        t1.end = True
+        t2.end = True
+    }) 
+    else(
+        (t1.end = False)
+        and 
+        (#{m : Minion | {t1.tmAction[m] = ActionCompleted}} = 4
+        => (turnChange[t1, t2])
+        else (minionAction[t1, t2]))
+    )
 
-    #{m : Minion | {t1.tmAction[m] = ActionCompleted}} = 4
-    => (turnChange[t1, t2])
-    else (minionAction[t1, t2])
 }
 
 pred traces {
@@ -414,5 +430,5 @@ pred traces {
 
 run{
     traces
-} for exactly 5 Int, 4  GameTime for {next is linear}
+} for exactly 5 Int, 20 GameTime for {next is linear}
 
