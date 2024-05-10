@@ -312,7 +312,7 @@ test suite for traces {
         PROPERTY_BASED_TEST7 : {traces implies noFirstStatePrev} is theorem
         PROPERTY_BASED_TEST8 : {traces implies noEndingStateNext} is theorem
         PROPERTY_BASED_TEST9 : {traces implies noFirstStatePrevReachable} is theorem
-        PROPERTY_BASED_TEST10 : {traces implies noCircleTest} is theorem
+        PROPERTY_BASED_TEST10 : {traces and noCircleTest} is sat
 
 		-- OPERATIONAL TEST
         OPERATIONAL_TEST1 : {traces and wellformed}is sat
