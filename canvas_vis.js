@@ -145,7 +145,7 @@ const create_rectangle = (x, y, width, height) => ({x, y, width, height})
 const draw_game_time_state = (game_time_state) => {
   ctx.fillStyle = 'black'
   ctx.font = '20px Arial'
-  ctx.fillText(`Game Time: ${game_time_state.game_time}`, 300, 30)
+  ctx.fillText(`${game_time_state.game_time}`, 300, 30)
 
   const red_rectangle = create_rectangle(0, 40, 600, 200)
   draw_minion_states(game_time_state.red_minion_states, red_rectangle)
