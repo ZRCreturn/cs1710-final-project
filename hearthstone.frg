@@ -320,6 +320,7 @@ pred turnChange[t1, t2 : GameTime]{
         // guard for other fields 
         t2.tmState[m] = t1.tmState[m]
         t2.tmHealth[m] = t1.tmHealth[m]
+        t1.tmSheild[m] = t2.tmSheild[m]
     }
 }
 
