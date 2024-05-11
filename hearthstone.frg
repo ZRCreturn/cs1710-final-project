@@ -144,6 +144,7 @@ pred InitMinionState{
     S1.mState = MinionLive
     S1.mSheild = SheildActive
     S1.mTaunt = False
+    S1.mLifesteal = False 
 
     S2.mAttack = 2
     S2.mHealth = 3
@@ -151,6 +152,7 @@ pred InitMinionState{
     S2.mState = MinionLive
     S2.mSheild = SheildActive
     S2.mTaunt = False
+    S2.mLifesteal = False 
 
     S3.mAttack = 4
     S3.mHealth = 5
@@ -158,6 +160,7 @@ pred InitMinionState{
     S3.mState = MinionLive
     S3.mSheild = SheildBroken
     S3.mTaunt = True
+    S3.mLifesteal = False 
 
     S4.mAttack = 6
     S4.mHealth = 7
@@ -165,6 +168,7 @@ pred InitMinionState{
     S4.mState = MinionLive
     S4.mSheild = SheildBroken
     S4.mTaunt = True
+    S4.mLifesteal = False 
 
     S5.mAttack = 5
     S5.mHealth = 5
@@ -172,6 +176,7 @@ pred InitMinionState{
     S5.mState = MinionLive
     S5.mSheild = SheildBroken
     S5.mTaunt = False
+    S5.mLifesteal = False 
 
     S6.mAttack = 2
     S6.mHealth = 7
@@ -179,6 +184,7 @@ pred InitMinionState{
     S6.mState = MinionLive
     S6.mSheild = SheildBroken
     S6.mTaunt = False
+    S6.mLifesteal = False 
 
     S7.mAttack = 4
     S7.mHealth = 7
@@ -186,6 +192,7 @@ pred InitMinionState{
     S7.mState = MinionLive
     S7.mSheild = SheildBroken
     S7.mTaunt = True
+    S7.mLifesteal = False 
 
     S8.mAttack = 7
     S8.mHealth = 6
@@ -193,6 +200,7 @@ pred InitMinionState{
     S8.mState = MinionLive
     S8.mSheild = SheildBroken
     S8.mTaunt = False
+    S8.mLifesteal = False 
 }
 pred InitGameTime{
     all m : Minion | {

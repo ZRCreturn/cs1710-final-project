@@ -175,7 +175,7 @@ const draw_game_time_state = (current_game_time_state_index) => {
 }
 
 const minion_image = new Image()
-minion_image.src = '/Users/forrest/courses/registered/1710/cs1710-final-project/minion1.png'
+minion_image.src = 'C:\\Users\\retur\\OneDrive\\Desktop\\courses\\2024 spring\\logic for systems\\homework\\final-project\\minion1.png';
 minion_image.addEventListener(
   'load',
   () => draw_game_time_state(current_game_time_state_index)
