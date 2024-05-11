@@ -146,14 +146,14 @@ pred wellformed_gameTime{
     -- NO CHANGE ON MINIONS HEALTH POINTS IF THE CURRENT IS IT'S LORD PLAYER
 pred attacker_minions_health_StaySame_if_sheild [p : Player]{
     -- Testing Guarantees No change in minion health when the current turn is its master's attack
-    all t1, t2: GameTime |{
-        (Game.next[t1] = t2)
-        (t1.turn = p)
-        (all m : Minion |{
-            ((m in p.minions) and (m.mSheild = SheildActive)) implies{
-                t1.tmHealth[m] = t2.tmHealth[m]
+    all t1, t2: GameTime | {
+        ((Game.next[t1] = t2) and (t1.turn = p)) implies (
+            all m : Minion | {
+                ((m in p.minions) and (m.mSheild = SheildActive)) implies {
+                    t1.tmHealth[m] = t2.tmHealth[m]
+                }
             }
-        })
+        )
     }
 }
 
@@ -287,7 +287,7 @@ pred trun_switch{
         t.turn != (Game.next[t]).turn
     }
 }
-pred all_minion_stay_same_action_state{
+pred some_minion_state_changes_for_all_gametime{
     -- Testing Guarantees that always at least one minion take action at each game state t -> t'
     all t : GameTime |{
         some m :Minion |{
@@ -316,7 +316,7 @@ test suite for traces {
 
 		-- OPERATIONAL TEST
         OPERATIONAL_TEST1 : {traces and wellformed}is sat
-        OPERATIONAL_TEST2 : {traces implies attacker_minions_health_StaySame_if_sheild[Player]}for exactly 2 Player is sat
+        OPERATIONAL_TEST2 : {traces and attacker_minions_health_StaySame_if_sheild[Player]}for exactly 2 Player is sat
         OPERATIONAL_TEST3 : {traces implies attacker_minions_health_drop_if_nonSheild[Player]}for exactly 2 Player is sat
         OPERATIONAL_TEST4 : {traces implies minion_state_check_A} is sat
         OPERATIONAL_TEST5 : {traces implies minion_state_check_B} is sat
@@ -330,7 +330,7 @@ test suite for traces {
         LIVENESS_TEST_A : {traces and has_winner_eventually} is sat
         -- STARVATION FREE TEST
         STARVATION_FREE_TEST_A : {traces and trun_switch} is sat
-        STARVATION_FREE_TEST_B : {traces and all_minion_stay_same_action_state} is sat
+        STARVATION_FREE_TEST_B : {traces and some_minion_state_changes_for_all_gametime} is sat
 
     }
 }
