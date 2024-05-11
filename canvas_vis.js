@@ -15,8 +15,10 @@ const ctx = canvas.getContext("2d")
 const red_minions = Red.join(minions).tuples()
 const blue_minions = Blue.join(minions).tuples()
 
-const create_minion_state = (health, action, is_attacker, is_defender) => ({
-  health, action, is_attacker, is_defender
+const create_minion_state = (
+  health, action, attack, has_shield, has_taunt, has_lifesteal, is_attacker, is_victim
+) => ({
+  health, action, attack, has_shield, has_taunt, has_lifesteal, is_attacker, is_victim
 })
 
 const get_all_game_time_states = (game_time) => {
@@ -34,8 +36,14 @@ const get_all_game_time_states = (game_time) => {
       for (const minion of minions) {
         const health = minion.join(game_time.join(tmHealth)).toString()
         const action = minion.join(game_time.join(tmAction)).toString()
+        const attack = minion.join(mAttack).toString()
+        const has_shield = minion.join(game_time.join(tmSheild)).toString() === 'SheildActive0'
+        const has_taunt = minion.join(mTaunt).toString() === 'True0'
+        const has_lifesteal = minion.join(mLifesteal).toString() === 'True0'
     
-        minion_states.push(create_minion_state(health, action, false, false))
+        minion_states.push(create_minion_state(
+          health, action, attack, has_shield, has_taunt, has_lifesteal, false, false
+        ))
       }
       return minion_states
     }
@@ -45,42 +53,27 @@ const get_all_game_time_states = (game_time) => {
       red_minion_states: get_minion_states(red_minions),
       blue_minion_states: get_minion_states(blue_minions)
     }
-
-    // const red_minion_states = []
-    // for (const red_minion of red_minions) {
-    //   const health = red_minion.join(game_time.join(tmHealth)).toString()
-    //   const action = red_minion.join(game_time.join(tmAction)).toString()
-  
-    //   red_minion_states.push(create_minion_state(health, action, false, false))
-    // }
-  
-    // const blue_minion_states = []
-    // for (const blue_minion of blue_minions) {
-    //   const health = blue_minion.join(game_time.join(tmHealth)).toString()
-    //   const action = blue_minion.join(game_time.join(tmAction)).toString()
-  
-    //   blue_minion_states.push(create_minion_state(health, action, false, false))
-    // }
-  
-    // game_time_state = {
-    //   game_time: game_time.toString(),
-    //   red_minion_states,
-    //   blue_minion_states
-    // }
   } else {
     const get_minion_states = (minions) => {
       const minion_states = []
       for (const minion of minions) {
         const health = minion.join(game_time.join(tmHealth)).toString()
         const action = minion.join(game_time.join(tmAction)).toString()
+        const attack = minion.join(mAttack).toString()
+        const has_shield = minion.join(game_time.join(tmSheild)).toString() === 'SheildActive0'
+        const has_taunt = minion.join(mTaunt).toString() === 'True0'
+        const has_lifesteal = minion.join(mLifesteal).toString() === 'True0'
 
         const next_health = minion.join(next_game_time.join(tmHealth)).toString()
         const next_action = minion.join(next_game_time.join(tmAction)).toString()
+        const next_has_shield = minion.join(next_game_time.join(tmSheild)).toString() === 'SheildActive0'
 
-        const is_attacker = next_action !== action
-        const is_defender = !is_attacker && (next_health !== health)
+        const is_attacker = next_action === 'ActionCompleted0' && action === 'NotAction0'
+        const is_victim = !is_attacker && ((next_health !== health) || (has_shield && !next_has_shield))
 
-        minion_states.push(create_minion_state(health, action, is_attacker, is_defender))
+        minion_states.push(create_minion_state(
+          health, action, attack, has_shield, has_taunt, has_lifesteal, is_attacker, is_victim
+        ))
       }
       return minion_states
     }
@@ -92,6 +85,7 @@ const get_all_game_time_states = (game_time) => {
     }
   }
   
+  game_time_state.is_end = (game_time.join(end).toString() === 'True0')
   const rest_game_time_states = get_all_game_time_states(next_game_time)
 
   return [game_time_state, ...rest_game_time_states]
@@ -110,42 +104,69 @@ const draw_minion_states = (
   for (const index in minion_states) {
     const x = 10 + index * rectangle.width / minion_states.length
     const y = rectangle.y + (rectangle.height - minion_rectangle_height) / 2
-  
-    // ctx.strokeRect(x, y, minion_rectangle_width, minion_rectangle_height)
+
     ctx.drawImage(minion_image, x, y, minion_rectangle_width, minion_rectangle_height)
-    const {health, action, is_attacker, is_defender} = minion_states[index]
-    // const lines = [
-    //   `HP: ${health}`,
-    //   `${action}`
-    // ]
-    // if (is_attacker) {
-    //   lines.push('ATTACKER')
-    // }
+    const {
+      health, action, attack, has_shield, has_taunt, has_lifesteal, is_attacker, is_victim
+    } = minion_states[index]
 
-    // if (is_defender) {
-    //   lines.push('DEFENDER')
-    // }
-
-    // const line_height = 30
-
-    // ctx.font = '20px Arial'
-
-    // for (let i = 0; i < lines.length; i++) {
-    //   ctx.fillText(lines[i], x+5, y + 20 + i * line_height);
-    // }
-
-    ctx.fillStyle = 'white'
     ctx.font = '13px Arial Black'
-    ctx.fillText(health, x+minion_rectangle_width-16, y+minion_rectangle_height-10)
+    ctx.fillStyle = 'white'
+    ctx.strokeStyle = 'black'
+    ctx.lineWidth = 3
+
+    const health_x = x+minion_rectangle_width-16
+    const health_y = y+minion_rectangle_height-10
+    ctx.strokeText(health, health_x, health_y)
+    ctx.fillText(health, health_x, health_y)
+
+    const attack_x = x+12
+    const attack_y = y+minion_rectangle_height-10
+    ctx.strokeText(attack, attack_x, attack_y)
+    ctx.fillText(attack, attack_x, attack_y)
+
+    const shield_text = has_shield ? 'Shield' : ''
+    const taunt_text = has_taunt ? 'Taunt' : ''
+    const lifesteal_text = has_lifesteal ? 'Lifesteal' : ''
+
+    ctx.font = '11px Arial Black'
+    ctx.fillStyle = 'black'
+    const property_x = x+minion_rectangle_width/2-23
+    ctx.fillText(shield_text, property_x, y+minion_rectangle_height-40)
+    ctx.fillText(taunt_text, property_x, y+minion_rectangle_height-28)
+    ctx.fillText(lifesteal_text, property_x, y+minion_rectangle_height-16)
+
+    const attacker_victim_x = x + minion_rectangle_width / 2 - 25
+    const attacker_victim_y = y + minion_rectangle_height + 15
+    let text
+    if (is_attacker) {
+      text = 'Attacker'
+    } else if (is_victim) {
+      text = 'Victim'
+    } else {
+      text = ''
+    }
+    ctx.font = '13px Arial Black'
+    ctx.fillText(text, attacker_victim_x, attacker_victim_y)
   }
 }
 
 const create_rectangle = (x, y, width, height) => ({x, y, width, height})
 
-const draw_game_time_state = (game_time_state) => {
+const draw_game_time_state = (current_game_time_state_index) => {
+
+  const game_time_state = game_time_states[current_game_time_state_index]
+  let title
+  if (game_time_state.is_end) {
+    title = 'Game End'
+  } else if (current_game_time_state_index % 5 === 4) {
+    title = `${game_time_state.game_time}, Turn change`
+  } else {
+    title = game_time_state.game_time
+  }
   ctx.fillStyle = 'black'
   ctx.font = '20px Arial'
-  ctx.fillText(`${game_time_state.game_time}`, 300, 30)
+  ctx.fillText(title, 250, 30)
 
   const red_rectangle = create_rectangle(0, 40, 600, 200)
   draw_minion_states(game_time_state.red_minion_states, red_rectangle)
@@ -157,7 +178,7 @@ const minion_image = new Image()
 minion_image.src = '/Users/forrest/courses/registered/1710/cs1710-final-project/minion1.png'
 minion_image.addEventListener(
   'load',
-  () => draw_game_time_state(game_time_states[current_game_time_state_index])
+  () => draw_game_time_state(current_game_time_state_index)
 )
 
 ///////////////////////
@@ -170,7 +191,7 @@ prev_button.addEventListener(
   () => {
     current_game_time_state_index = (current_game_time_state_index + game_time_states.length - 1) % game_time_states.length
     ctx.clearRect(0, 0, canvas.width, canvas.height)
-    draw_game_time_state(game_time_states[current_game_time_state_index])
+    draw_game_time_state(current_game_time_state_index)
   }
 )
 
@@ -189,7 +210,7 @@ next_button.addEventListener(
   () => {
     current_game_time_state_index = (current_game_time_state_index + 1) % game_time_states.length
     ctx.clearRect(0, 0, canvas.width, canvas.height)
-    draw_game_time_state(game_time_states[current_game_time_state_index])
+    draw_game_time_state(current_game_time_state_index)
   }
 )
 
