@@ -1,10 +1,12 @@
-# Project Objective
+# Modeling Hearthstone
+
+## Project Objective
 
 Since all three of us are fans of the game Hearthstone, we're interested in simulating a simplified version after learning about Forge. Simulating our favorite game is already rewarding in itself, but we also want to use this model to explore game scenarios. By analyzing the outcomes of different strategies, we hope to uncover effective general tactics that players can apply in real matches. For beginners, our model will provide valuable insights into basic strategies that help secure victories. For seasoned players, the data-driven results will offer an advantage over relying solely on intuition.
 
 However, our aspirations don't end there. Our model also aims to tackle the challenges of game balance and diversity in game modes.At the first, one of the common issue that all game need to slove is the game balance(fairness). Balance is a broad term within gaming. Specifically, the equilibrium of a game determines not only its lifespan but also its reputation and profitability. For instance, what initial state (such as health, attack etc.) should we assign to each new minion in the next version of the game? When a new hero is introduced in the upcoming version of the game, what abilities/buffs should be given to the new hero without disrupting the game's balance? When it comes to profitability, could we introduce a new skin that enhances profitability without disrupting game balance? These fundamental issues are what we can address with Slover. To be more specific, we can test all these things in the pre-project phase using solvers, rather than actually developing these new features and test in the internal or beta version. By doing this, game company can save a lot of development resources. Therefore, Our project not only completed the simulation game goal we listed above, but also has much practical significance
 
-# Model Design and Visualization:
+## Model Design and Visualization:
 The whole game is a time sequence running through the beginning and the end of the game, and we constrain the connection relationship between the minimum time unit **GameTime** of each action through the predicate of ``traces``, and record the whole game trajectory.  Specifically, we use the ``step`` predicate to connect each pair of **GameTimes**. Within each step, two key types of actions can occur:
 
 1. **Turn change**: Switches control to the opponent's turn.
@@ -20,7 +22,7 @@ Condition to win:
 1. When all of one side's followers are killed, the other side is declared the winner. 
 2. above is constranined by the predicate ``winningAfter``
 
-# Signatures and Predicates
+## Signatures and Predicates
 
 ### Signatures:
 
@@ -70,7 +72,7 @@ Predicates represent the operational mechanisms and boundary conditions of the g
 
 
 
-# Testing:
+## Testing:
 The testing strategy for the project encompasses four components: Sig Properties Testing, Game Procedure Testing, LIVENESS TEST, and STARVATION FREE TEST. I will outline the purpose and function of each of these components：
 
     -- Sig Properties Testing :
@@ -100,7 +102,10 @@ No, According to our initial goal setting, we have accomplished not only the sim
 game but also the modeling tests of elements that could potentially influence the game's balance.
 
 ### How should we understand an instance of your model and what your visualization shows (whether custom or default)?
-// TODO by futao
+
+We write a custom visualizer in `canvas_vis.js`. To visualize an instance, copy and paste the code into the Script tab, select `<div>`, and click `run`. You may need to close the `Variables` sidebar if the game board cannot show fully.
+
+After the game board shows properly, you can click the `next` and `prev` button to view game states. The 4 minions on the top belong to the red player, while those on the bottom belong to the blue player. When all 4 minions of a player die, game ends.
 
 ### Collaborators
 We don't have any external collaborators outside of the team.
